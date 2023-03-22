@@ -7,9 +7,35 @@ from pygame import mixer
 """ playing music """
 mixer.init()
 music = mixer.Sound(getcwd() + "\WhimsyGroove.mp3")
-# eating_sound = mixer.Sound(getcwd() + "\eating-sound-effect.mp3")
-eating_sound = mixer.Sound("C:\\Users\\91814\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\6TWUTDY2\\HungryGame[1].zip\\HungryGame\\eating-sound-effect.mp3")
+eating_sound = mixer.Sound(getcwd() + "\eating-sound-effect.mp3")
 mixer.Sound.play(music)
+
+""" score and highscore """
+score = 0
+highscore = 0
+
+# Reading the Highscore from the Text File
+file = open(getcwd() + "\\HighScore.txt", "r")
+
+for i in file:
+    highscore = int(i.strip())
+
+file.close()
+file = open(getcwd() + "\\HighScore.txt", "w")
+
+# Scoreboard Turtle Object
+sc = turtle.Turtle()
+sc.shape("square")
+sc.color("white")
+sc.penup()
+sc.hideturtle()
+sc.goto(-670, 300)
+
+# HighScoreBoard Turtle ObjectS
+hc = sc.clone()
+hc.goto(450, 300)
+hc.write("Highscore: " + str(highscore), align = "left", font=("arial", 30, "italic"))
+
 
 """ adjusts the width, height of the playable screen area, also controls the size of the food """
 w = 1400
@@ -29,11 +55,18 @@ offsets = {
 def reset():
     global snake, snake_dir, food_position, pen, score, highscore, file
 
+    highscore_update()
+
+    score = 0
+
     snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
     snake_dir = "up"
     food_position = get_random_food_position()
     food.goto(food_position)
     move_snake()
+
+    sc.clear()
+    sc.write("Score: " + str(score), align = "left", font=("arial", 30, "italic"))
     
 """ function to move the snake turtle"""
 def move_snake():
@@ -82,9 +115,14 @@ def food_collision():
 
     if get_distance(snake[-1], food_position) < 20:
         food_position = get_random_food_position()
+        score += 10
+
+        # ScoreBoard Updating
+        sc.clear()
+        sc.write("Score: " + str(score), align = "left", font=("arial", 30, "italic"))
 
         mixer.Sound.play(eating_sound)
-
+        #mixer.Sound.play(music)
         screen.update()
         pen.color(colors[random.randint(0, len(colors) - 1)])
         
@@ -127,6 +165,21 @@ def go_left():
     if snake_dir != "right":
         snake_dir = "left"
 
+""" updating the highscoreboard """
+def highscore_update():
+    global score, highscore
+
+    file.seek(0)
+    file.truncate()
+
+    if score > highscore:
+        highscore = score
+        file.write(str(score))
+        hc.clear()
+        hc.write("Highscore: " + str(highscore), align = "left", font=("arial", 30, "italic"))
+    else:
+        file.write(str(highscore))
+
 """screen setup including the game title, bg color etc"""
 screen = turtle.Screen()
 screen.setup(w, h)
@@ -157,3 +210,6 @@ screen.onkey(go_left, "Left")
 
 reset()
 turtle.done()
+
+highscore_update()
+file.close()
