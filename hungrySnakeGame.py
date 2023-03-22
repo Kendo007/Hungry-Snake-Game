@@ -1,7 +1,15 @@
 """ imports """
 import turtle
 import random
+from os import getcwd
 from pygame import mixer
+
+""" playing music """
+mixer.init()
+music = mixer.Sound(getcwd() + "\WhimsyGroove.mp3")
+# eating_sound = mixer.Sound(getcwd() + "\eating-sound-effect.mp3")
+eating_sound = mixer.Sound("C:\\Users\\91814\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\6TWUTDY2\\HungryGame[1].zip\\HungryGame\\eating-sound-effect.mp3")
+mixer.Sound.play(music)
 
 """ adjusts the width, height of the playable screen area, also controls the size of the food """
 w = 1400
@@ -74,6 +82,8 @@ def food_collision():
 
     if get_distance(snake[-1], food_position) < 20:
         food_position = get_random_food_position()
+
+        mixer.Sound.play(eating_sound)
 
         screen.update()
         pen.color(colors[random.randint(0, len(colors) - 1)])
